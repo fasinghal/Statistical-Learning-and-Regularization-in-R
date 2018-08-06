@@ -56,6 +56,16 @@ which.max(reg.summary$adjr2)
 max(reg.summary$adjr2)
 coef(regfit.full, id = 10)
 
+#Forward/Backward Selection
+regfit.fwd<-regsubsets(Salary~. , data=data, nvmax = 19, method = "forward") 
+reg.fwd.summary<-summary(regfit.fwd)
+names(reg.fwd.summary)
+plot(reg.fwd.summary$bic)
 
+regfit.bwd<-regsubsets(Salary~. , data=data, nvmax = 19, method = "backward") 
+reg.bwd.summary<-summary(regfit.fwd)
+names(reg.bwd.summary)
+plot(reg.bwd.summary$bic)
+coef(regfit.bwd, 6)
 
 
