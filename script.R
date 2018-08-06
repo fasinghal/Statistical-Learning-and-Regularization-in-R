@@ -8,8 +8,6 @@ summary(Hitters)
 data = na.omit(Hitters)
 summary(data)
 
-
-
 dim(Hitters)
 dim(data)
 
@@ -37,7 +35,27 @@ plot(reg.summary$cp ,xlab="Number of variables", ylab="CP Statistic")
 
 #library(ggplot2)
 #ggplot()+geom_point(aes(x = (1:length(reg.summary$cp)) ,y = reg.summary$cp ))
+which.min(reg.summary$cp) # at 10 , better to use 6 (~1 SD less than cp)
+min(reg.summary$cp)
+#visualize Cp resulting choosing different variables
+plot(regfit.full, scale = "Cp")
+coef(regfit.full,10) #Coefficients related to best subset selection of degree 10
 
-which.min(reg.summary$cp)
+#Using BIC - min is better
+
+plot(reg.summary$bic ,xlab="Number of variables", ylab="BIC Statistic")
+plot(regfit.full, scale="bic")
+which.min(reg.summary$bic)
+min(reg.summary$bic)
+coef(regfit.full, id = 6)
+
+#using Adj R_sq : Higher is better
+plot(reg.summary$adjr2 ,xlab="Number of variables", ylab="Adjusted R_sq Statistic")
+plot(regfit.full, scale="adjr2")
+which.max(reg.summary$adjr2)
+max(reg.summary$adjr2)
+coef(regfit.full, id = 10)
+
+
 
 
