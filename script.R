@@ -68,4 +68,73 @@ names(reg.bwd.summary)
 plot(reg.bwd.summary$bic)
 coef(regfit.bwd, 6)
 
+#Validation Techniques 
+
+set.seed(1)
+num.obs <- dim(data)[1]
+train = sample( num.obs, 180, replace = F)
+test = -train
+
+
+regfit.best = regsubsets(Salary~., data[train,], nvmax =19 )
+
+#lests build of testdataset
+
+test.mat <- model.matrix(Salary~., data = data[test,])
+head(test.mat)
+
+val.err<-rep(0,19)
+
+for(i in 1:19){
+  coefi=coef(regfit.best,id = i)
+  pred = test.mat[, names(coefi)] %*% coefi
+  val.err[i] = mean((data$Salary[test] - pred)^2)
+}
+
+which.min(val.err)
+min(val.err)
+
+coef(regfit.best, 5)
+
+
+#Ridge and lasso regularization
+# alpha = 0 Ridge
+# alpha =1 Lasso
+
+install.packages("glmnet", dependencies = T)
+library(glmnet)
+
+
+grid = 10^(seq(from =10, to =-2, length=100))
+
+
+x = model.matrix(Salary~., data = data)[,-1] # exclude intercept
+y = data$Salary
+
+ridge.model <- glmnet(x = x , y = y, alpha = 0, lambda = grid) # ridge regression
+dim(coef(ridge.model)) # 20 * 100 for 100 lambda  it generated 19 coef for 19 Xi's and 1 intercept
+
+#cross validation
+set.seed(10)
+cv.out = cv.glmnet(x = x, y = y, alpha = 0,nfolds = 7)
+plot(cv.out)
+
+names(cv.out)
+best.lambda<-cv.out$lambda.min
+best.lambda # best lambda
+
+model.ridge <- glmnet(x = x, y = y, alpha = 0)
+predict(model.ridge, type = "coefficients", s = best.lambda)[1:20,]
+            
+
+#Lasso Model - chooses the coefficients automatically
+cv.out = cv.glmnet(x = x, y = y, alpha = 1,nfolds = 10)
+plot(cv.out)
+
+names(cv.out)
+best.lambda2<-cv.out$lambda.min
+best.lambda2
+model.lasso <- glmnet(x = x, y = y, alpha = 1)
+predict(model.lasso, type = "coefficients", s = best.lambda2)[1:20,]
+
 
